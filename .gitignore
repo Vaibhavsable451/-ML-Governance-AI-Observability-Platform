@@ -1,0 +1,45 @@
+# Security & Secrets
+*.pem
+*.key
+*.pkcs12
+*.pfx
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data & Database
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.joblib
+
+# Logs & Temporary
+*.log
+*.backup
+/tmp/
+
+# OS metadata
+.DS_Store
+Thumbs.db

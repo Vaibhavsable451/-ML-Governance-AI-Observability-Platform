@@ -1,0 +1,21 @@
+services:
+  mlflow:
+    build: {context: ., dockerfile: deployment/docker/Dockerfile.mlflow}
+    ports: ["5000:5000"]
+    volumes: ["mlflow-data:/mlflow"]
+  api:
+    build: {context: ., dockerfile: deployment/docker/Dockerfile.api}
+    environment:
+      AUTO_BOOTSTRAP: "true"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      USE_CLOUDWATCH: "false"
+    ports: ["8000:8000"]
+    volumes: ["gov-data:/data"]
+    depends_on: [mlflow]
+  ui:
+    build: {context: ., dockerfile: deployment/docker/Dockerfile.ui}
+    environment: {API_URL: "http://api:8000"}
+    ports: ["8501:8501"]
+    depends_on: [api]
+volumes: {gov-data: {}, mlflow-data: {}}

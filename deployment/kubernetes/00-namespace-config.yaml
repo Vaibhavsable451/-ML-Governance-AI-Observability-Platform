@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata: {name: ai-governance}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: gov-config, namespace: ai-governance}
+data:
+  AUTO_BOOTSTRAP: "true"
+  USE_CLOUDWATCH: "true"
+  AWS_REGION: "eu-north-1"
+  CLOUDWATCH_NAMESPACE: "AIGovernance"
+  MLFLOW_TRACKING_URI: "http://mlflow-service:5000"
+  MONTHLY_BUDGET_USD: "50"
+---
+# Example only. Create the real secret with:
+#   kubectl -n ai-governance create secret generic gov-secrets --from-literal=ANTHROPIC_API_KEY=... 
+apiVersion: v1
+kind: Secret
+metadata: {name: gov-secrets, namespace: ai-governance}
+type: Opaque
+stringData: {ANTHROPIC_API_KEY: ""}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: gov-data, namespace: ai-governance}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: 5Gi}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: mlflow-data, namespace: ai-governance}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: 5Gi}}

@@ -1,0 +1,35 @@
+# Single replica on purpose: state lives in SQLite on a ReadWriteOnce volume.
+# To scale the API horizontally, move agents/governance/registry.py to RDS/Postgres first.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: api, namespace: ai-governance}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: api}}
+  template:
+    metadata: {labels: {app: api}}
+    spec:
+      imagePullSecrets: [{name: ecr-pull}]
+      securityContext: {fsGroup: 1000}
+      containers:
+        - name: api
+          image: 851435022143.dkr.ecr.eu-north-1.amazonaws.com/ai-governance-api:latest
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - configMapRef: {name: gov-config}
+            - secretRef: {name: gov-secrets}
+          volumeMounts: [{name: data, mountPath: /data}]
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "1", memory: 1500Mi}
+          readinessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 20, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 60, periodSeconds: 20}
+      volumes: [{name: data, persistentVolumeClaim: {claimName: gov-data}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: api-service, namespace: ai-governance}
+spec:
+  selector: {app: api}
+  ports: [{port: 8000, targetPort: 8000}]

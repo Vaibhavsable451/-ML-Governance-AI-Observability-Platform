@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: mlflow, namespace: ai-governance}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: mlflow}}
+  template:
+    metadata: {labels: {app: mlflow}}
+    spec:
+      imagePullSecrets: [{name: ecr-pull}]
+      securityContext: {fsGroup: 1000}
+      containers:
+        - name: mlflow
+          image: 851435022143.dkr.ecr.eu-north-1.amazonaws.com/ai-governance-mlflow:latest
+          ports: [{containerPort: 5000}]
+          volumeMounts: [{name: data, mountPath: /mlflow}]
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: 500m, memory: 1Gi}
+          readinessProbe: {httpGet: {path: /health, port: 5000}, initialDelaySeconds: 15}
+      volumes: [{name: data, persistentVolumeClaim: {claimName: mlflow-data}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: mlflow-service, namespace: ai-governance}
+spec:
+  selector: {app: mlflow}
+  ports: [{port: 5000, targetPort: 5000}]

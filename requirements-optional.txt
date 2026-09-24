@@ -1,0 +1,2 @@
+mlflow>=2.12
+sentence-transformers>=2.7
