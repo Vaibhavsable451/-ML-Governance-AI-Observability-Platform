@@ -70,6 +70,10 @@ The core insight: **accuracy is necessary but not sufficient**. A model can scor
 
 ## 🏗️ Architecture
 
+<div align="center">
+  <img src="./assets/system-architecture.png" alt="ML Governance & AI Observability Platform — System Architecture" width="100%">
+</div>
+
 ```mermaid
 flowchart LR
     A[Input] --> B[Validation]
